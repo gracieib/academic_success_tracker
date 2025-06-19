@@ -15,7 +15,7 @@ load_dotenv()
 
 # Flask app setup
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend interaction
+CORS(app)
 
 # MongoDB connection
 mongo_uri = os.getenv("MONGO_URI")
@@ -26,15 +26,16 @@ students_collection = db["students"]
 api_key = os.getenv("GOOGLE_API_KEY")
 tavily_api_key = os.getenv("TAVILY_API_KEY")
 
+#initailizing llm
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash-001",
     temperature=0.7,
 )
 
-# Create Tavily search tool
+# Creating Tavily search tool
 tavily_tool = TavilySearchResults(api_key=os.getenv("TAVILY_API_KEY"))
 
-# Define the agent's tools and prompt
+# Defining the agent's tools and prompt
 tools = [tavily_tool]
 from langchain_core.prompts import MessagesPlaceholder
 
@@ -60,19 +61,20 @@ def register_student():
         data = request.get_json()
         if not data:
             return jsonify({"error": "No JSON data received"}), 400
-        # Validate required fields
+
         required_fields = ["name", "email", "level", "target_cgpa"]
         if not all(field in data for field in required_fields):
             return jsonify({"error": f"Missing fields. Required: {required_fields}"}), 400
-        # Check if student already exists
+
         if students_collection.find_one({"email": data["email"]}):
             return jsonify({"error": "Student already exists"}), 409
-        # Insert new student
         result = students_collection.insert_one(data)
+
         return jsonify({
             "message": "Student registered successfully",
             "id": str(result.inserted_id)
         }), 201
+
     except Exception as e:
         print(f"Registration error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
@@ -96,11 +98,9 @@ def get_events():
 def add_events():
     data = request.get_json()
 
-    # Validate required fields
     if not all(k in data for k in ("email", "events")):
         return jsonify({"error": "Missing fields"}), 400
 
-    # Update the student's document by email
     result = students_collection.update_one(
         {"email": data["email"]},
         {"$set": {"events": data["events"]}}
@@ -133,12 +133,10 @@ def plan_cgpa():
         "F": 0.0
     }
 
-    # Try assigning highest grades and reduce until target CGPA is met
     recommendations = []
     for subject in subjects:
         unit = subject["unit"]
         for grade, point in grade_scale.items():
-            # Assume assigning this grade and check total CGPA
             test_recommendations = recommendations + [{
                 "subject": subject["name"],
                 "unit": unit,
@@ -179,7 +177,6 @@ def get_student():
 def update_cgpa():
     data = request.get_json()
 
-    # Validate required fields
     if not all(k in data for k in ("email", "current_cgpa")):
         return jsonify({"error": "Missing fields"}), 400
 
@@ -212,6 +209,7 @@ def submit_feedback():
     return jsonify({"message": "Feedback submitted successfully"}), 200
 
 
+#chatbot
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
     try:
