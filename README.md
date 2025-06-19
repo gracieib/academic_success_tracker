@@ -96,9 +96,13 @@ pip install -r requirements.txt
 python app.py
 ```
 
+---
+
 ### 📄 License
 MIT License
 © 2025
+
+---
 
 ### 🙌 Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
