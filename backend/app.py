@@ -2,6 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
 import requests
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_community.tools.tavily_search.tool import TavilySearchResults
+from langchain_core.prompts import ChatPromptTemplate
 import os
 from dotenv import load_dotenv
 
@@ -18,6 +22,24 @@ client = MongoClient(mongo_uri)
 db = client["academicsuccessdb"]
 students_collection = db["students"]
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+
+# Initialize AI components
+llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key=os.getenv("GOOGLE_API_KEY"))
+
+# Create Tavily search tool
+tavily_tool = TavilySearchResults(api_key=os.getenv("TAVILY_API_KEY"))
+
+# Define the agent's tools and prompt
+tools = [tavily_tool]
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful academic assistant for university students. Provide concise, accurate answers."),
+    ("user", "{input}"),
+    ("assistant", "Let me research that for you...")
+])
+
+agent = create_tool_calling_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
 
 # Register endpoint
 @app.route('/register', methods=['POST'])
@@ -133,19 +155,23 @@ def submit_feedback():
 
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
-    user_input = request.json.get('message')
-
-    # Use Tavily for search
-    response = requests.post(
-        'https://api.tavily.com/search',
-        headers={"Authorization": f"Bearer {TAVILY_API_KEY}"},
-        json={"query": user_input, "include_answer": True}
-    )
-
-    data = response.json()
-    answer = data.get("answer", "Sorry, I couldn't find anything useful.")
-
-    return jsonify({"response": answer})
+    try:
+        user_input = request.json.get('message')
+        if not user_input:
+            return jsonify({"error": "Message is required"}), 400
+        
+        # Use the agent to process the query
+        response = agent_executor.invoke({"input": user_input})
+        answer = response.get("output", "I couldn't generate a response.")
+        
+        return jsonify({
+            "response": answer,
+            "sources": response.get("intermediate_steps", [])
+        })
+    
+    except Exception as e:
+        print(f"Chatbot error: {str(e)}")
+        return jsonify({"error": "Failed to process request"}), 500
 
 # Run app
 if __name__ == '__main__':
