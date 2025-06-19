@@ -21,21 +21,28 @@ mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
 db = client["academicsuccessdb"]
 students_collection = db["students"]
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
-# Initialize AI components
-llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key=os.getenv("GOOGLE_API_KEY"))
+api_key = os.getenv("GOOGLE_API_KEY")
+tavily_api_key = os.getenv("TAVILY_API_KEY")
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.0-flash-001",
+    temperature=0.7,
+)
 
 # Create Tavily search tool
 tavily_tool = TavilySearchResults(api_key=os.getenv("TAVILY_API_KEY"))
 
 # Define the agent's tools and prompt
 tools = [tavily_tool]
+from langchain_core.prompts import MessagesPlaceholder
+
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are a helpful academic assistant for university students. Provide concise, accurate answers."),
     ("user", "{input}"),
-    ("assistant", "Let me research that for you...")
+    MessagesPlaceholder(variable_name="agent_scratchpad")
 ])
+
 
 agent = create_tool_calling_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
