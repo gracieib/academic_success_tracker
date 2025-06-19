@@ -13,7 +13,6 @@ export default function Sidebar() {
                     <li title='Workout'><Link href='/workout'><Image src='/images/icons/chatbot.svg' alt='' width={25} height={25} /> AI bot</Link></li>
                     <li title='Recipes'><Link href='/recipes'><Image src='/images/icons/dietplan.svg' alt='' width={25} height={25} />To-Do</Link></li>
                     <hr />
-                    <li title='Goals'><Link href='/goals'><Image src='/images/icons/goal.svg' alt='' width={25} height={25} /> Goals</Link></li>
                     <li title='Contact Us'><Link href='/contact'><Image src='/images/icons/contact.svg' alt='' width={25} height={25} /> Contact Us</Link></li>
                     <li title='Help'><Link href='/help'><Image src='/images/icons/help.svg' alt='' width={25} height={25} /> Help</Link></li>
                     <li title='My Profile'><Link href='/my-profile'><Image src='/images/icons/user.svg' alt='' width={25} height={25} /> My Account</Link></li>

@@ -1,7 +1,7 @@
 export default function HelpPage() {
   return (
     <>
-    <h1>HelpPage</h1>
+    <h1></h1>
     </>
   )
 }
