@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 type Message = {
   role: 'user' | 'bot'
@@ -60,18 +61,25 @@ export default function Chatbot() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`max-w-lg px-4 py-2 rounded-lg ${
-              msg.role === 'user'
-                ? 'bg-blue-500 text-white self-end ml-auto'
-                : 'bg-white text-gray-800 self-start mr-auto border'
-            }`}
-          >
-            {msg.content}
+      {messages.map((msg, i) => (
+        <div
+          key={i}
+          className={`max-w-lg px-4 py-2 rounded-lg whitespace-pre-wrap ${
+            msg.role === 'user'
+              ? 'bg-blue-500 text-white self-end ml-auto'
+              : 'bg-white text-gray-800 self-start mr-auto border'
+          }`}
+        >
+          {msg.role === 'bot' ? (
+          <div className="prose prose-sm max-w-none">
+            <ReactMarkdown>{msg.content}</ReactMarkdown>
           </div>
-        ))}
+        ) : (
+          msg.content
+        )}
+        </div>
+      ))}
+
         <div ref={chatEndRef} />
       </div>
 

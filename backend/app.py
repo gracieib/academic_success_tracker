@@ -215,16 +215,15 @@ def chatbot():
         user_input = request.json.get('message')
         if not user_input:
             return jsonify({"error": "Message is required"}), 400
-        
-        # Use the agent to process the query
+
         response = agent_executor.invoke({"input": user_input})
         answer = response.get("output", "I couldn't generate a response.")
-        
+
         return jsonify({
             "response": answer,
             "sources": response.get("intermediate_steps", [])
         })
-    
+
     except Exception as e:
         print(f"Chatbot error: {str(e)}")
         return jsonify({"error": "Failed to process request"}), 500
