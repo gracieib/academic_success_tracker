@@ -74,27 +74,41 @@ export default function CGPAPlanner() {
       <h1 className="text-2xl font-bold mb-6">🎯 CGPA Planner</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <input
-          type="number"
-          value={currentCGPA}
-          onChange={e => setCurrentCGPA(Number(e.target.value))}
-          placeholder="📍 Current CGPA"
-          className="border rounded px-3 py-2"
-        />
-        <input
-          type="number"
-          value={completedUnits}
-          onChange={e => setCompletedUnits(Number(e.target.value))}
-          placeholder="📦 Completed Units"
-          className="border rounded px-3 py-2"
-        />
-        <input
-          type="number"
-          value={targetCGPA}
-          onChange={e => setTargetCGPA(Number(e.target.value))}
-          placeholder="🎯 Target CGPA"
-          className="border rounded px-3 py-2"
-        />
+        {/* Current CGPA */}
+        <div className="flex flex-col">
+          <label className="text-sm text-gray-600 mb-1">📍 Current CGPA</label>
+          <input
+            type="number"
+            value={currentCGPA}
+            onChange={e => setCurrentCGPA(Number(e.target.value))}
+            className="border rounded px-3 py-2"
+            placeholder="e.g. 3.2"
+          />
+        </div>
+
+        {/* Completed Units */}
+        <div className="flex flex-col">
+          <label className="text-sm text-gray-600 mb-1">📦 Completed Units</label>
+          <input
+            type="number"
+            value={completedUnits}
+            onChange={e => setCompletedUnits(Number(e.target.value))}
+            className="border rounded px-3 py-2"
+            placeholder="e.g. 56"
+          />
+        </div>
+
+        {/* Target CGPA */}
+        <div className="flex flex-col">
+          <label className="text-sm text-gray-600 mb-1">🎯 Target CGPA</label>
+          <input
+            type="number"
+            value={targetCGPA}
+            onChange={e => setTargetCGPA(Number(e.target.value))}
+            className="border rounded px-3 py-2"
+            placeholder="e.g. 4.5"
+          />
+        </div>
       </div>
 
       <h2 className="text-lg font-semibold mb-2">📚 Your Current Semester Courses</h2>

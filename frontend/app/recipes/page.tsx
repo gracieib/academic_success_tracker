@@ -1,171 +1,96 @@
-import Image from "next/image";
-import style from './recipes.module.css';
+'use client'
 
-export default function Recipes() {
+import { useEffect, useState } from 'react'
+
+type Todo = {
+  id: number
+  task: string
+  completed: boolean
+}
+
+export default function TodoPage() {
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [newTask, setNewTask] = useState('')
+
+  // Load todos from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('todos')
+    if (stored) setTodos(JSON.parse(stored))
+  }, [])
+
+  // Save todos to localStorage on update
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos))
+  }, [todos])
+
+  const addTodo = () => {
+    if (!newTask.trim()) return
+    setTodos(prev => [
+      ...prev,
+      { id: Date.now(), task: newTask.trim(), completed: false }
+    ])
+    setNewTask('')
+  }
+
+  const toggleComplete = (id: number) => {
+    setTodos(prev =>
+      prev.map(todo =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    )
+  }
+
+  const deleteTodo = (id: number) => {
+    setTodos(prev => prev.filter(todo => todo.id !== id))
+  }
+
   return (
-    <>
-        <div className={`mb2 ${style.recommended}`}>
-          <h1>Recommended Recipes</h1>
-          <p>Based on your preference</p>
-          <div className={`gap2 flex-row ${style.recipes}`}>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-            <Image src='/images/food/greenSalad.jpg' alt="" width={270} height={139} />
-              <h5>Green Salad</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Heart health
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Weight Loss
-                </div>
-              </div>
-            </div>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/roastedChicken.jpg' alt="" width={270} height={139} />
-              <h5>Roasted Chicken</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  B-12
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Protein Rich
-                </div>
-              </div>
-            </div>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/bananaShake.jpg' alt="" width={270} height={139} />
-              <h5>Banana Shake</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Quick
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Complex Carbs
-                </div>
-              </div>
-            </div>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/sunnySideUp.jpg' alt="" width={270} height={139} />
-              <h5>Sunny Side Up</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Heart Health
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Protein Rich
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen w-full max-w-4xl mx-auto bg-gray-50 rounded-lg shadow-md p-8">
+      <div className="max-w-4xl mx-auto bg-gray-50 rounded-lg shadow-md p-8">
+        <h1 className="text-2xl font-bold mb-4 text-center">📋 Your To-Do List</h1>
+
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            value={newTask}
+            onChange={e => setNewTask(e.target.value)}
+            placeholder="Add a new task..."
+            className="flex-grow border px-3 py-2 rounded"
+          />
+          <button
+            onClick={addTodo}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Add
+          </button>
         </div>
-        <div className={`pb1 mb2 ${style.recommended}`}>
-          <h1>Trending Recipes</h1>
-          <p>Cooked by people with same preferences</p>
-          <div className={`gap2 flex-row ${style.recipes}`}>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/oatsPancakes.jpg' alt="" width={270} height={139} />
-              <h5>Oats Pancakes</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Heart Health
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Weight Loss
-                </div>
+
+        <ul className="space-y-2">
+          {todos.map(todo => (
+            <li
+              key={todo.id}
+              className="flex justify-between items-center border p-3 rounded bg-white"
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={() => toggleComplete(todo.id)}
+                />
+                <span className={todo.completed ? 'line-through text-gray-400' : ''}>
+                  {todo.task}
+                </span>
               </div>
-            </div>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/wholeWheatPasta.jpg' alt="" width={270} height={139} />
-              <h5>Whole Wheat Noodles</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  B-12
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Protein Rich
-                </div>
-              </div>
-            </div>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/roastedChickenBreast.jpg' alt="" width={270} height={139} />
-              <h5>Roasted Chicken Breast</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Quick
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Complex Carbs
-                </div>
-              </div>
-            </div>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/roastedVeggies.jpg' alt="" width={270} height={139} />
-              <h5>Roasted Veggies</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Heart Health
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Protein Rich
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className={`pb1 mb2 ${style.recommended}`}>
-          <h1>Healer&apos;s Choice</h1>
-          <p>Specially for you</p>
-          <div className={`gap2 flex-row ${style.recipes}`}>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/paneerRoll.jpg' alt="" width={270} height={139} />
-              <h5>Paneer Roll</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Protein Rich
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Heart Health
-                </div>
-              </div>
-            </div>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/lassi.jpg' alt="" width={270} height={139} />
-              <h5>Lassi</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Quick
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Heart Health
-                </div>
-              </div>
-            </div>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/paneer.jpg' alt="" width={270} height={139} />
-              <h5>Paneer</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Protein Rich
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Heart Health
-                </div>
-              </div>
-            </div>
-            <div className={`flex-coloumn gap1 ${style.recipe}`}>
-              <Image src='/images/food/soyaTikka.jpg' alt="" width={270} height={139} />
-              <h5>Soya Tikka</h5>
-              <div className={`gap1 flex-row ${style.component}`}>
-                <div className={`${style.nutrient}`}>
-                  Protein Rich
-                </div>
-                <div className={`${style.nutrient}`}>
-                  Heart Health
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-    </>
-  );
-};
+              <button
+                onClick={() => deleteTodo(todo.id)}
+                className="text-red-500 hover:text-red-700"
+              >
+                🗑️
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
