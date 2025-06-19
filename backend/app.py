@@ -108,6 +108,55 @@ def add_events():
 
     return jsonify({"message": "Events added successfully"}), 200
 
+# Cp
+@app.route('/plan-cgpa', methods=['POST'])
+def plan_cgpa():
+    data = request.get_json()
+    target = data.get("target_cgpa")
+    subjects = data.get("subjects", [])
+
+    if not target or not subjects:
+        return jsonify({"error": "Missing target_cgpa or subjects"}), 400
+
+    total_units = sum(s["unit"] for s in subjects)
+
+    # Grade point values
+    grade_scale = {
+        "A": 5.0,
+        "B": 4.0,
+        "C": 3.0,
+        "D": 2.0,
+        "E": 1.0,
+        "F": 0.0
+    }
+
+    # Try assigning highest grades and reduce until target CGPA is met
+    recommendations = []
+    for subject in subjects:
+        unit = subject["unit"]
+        for grade, point in grade_scale.items():
+            # Assume assigning this grade and check total CGPA
+            test_recommendations = recommendations + [{
+                "subject": subject["name"],
+                "unit": unit,
+                "point": point,
+                "grade": grade
+            }]
+            total_points = sum(r["point"] * r["unit"] for r in test_recommendations)
+            test_cgpa = total_points / total_units
+            if test_cgpa >= target:
+                recommendations.append({
+                    "subject": subject["name"],
+                    "recommendedGrade": grade
+                })
+                break
+        else:
+            recommendations.append({
+                "subject": subject["name"],
+                "recommendedGrade": "F"
+            })
+
+    return jsonify({"recommendations": recommendations}), 200
 
 # Fetch student by email
 @app.route('/student', methods=['GET'])

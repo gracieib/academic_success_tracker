@@ -8,8 +8,8 @@ import Sidebar from './components/sidebar';
 import Loading from './loading'
 
 export const metadata: Metadata = {
-  title: 'Healer Ai App',
-  description: 'Health Fitness App',
+  title: 'Academic Success',
+  description: 'Academic Success App',
 }
 
 export default function RootLayout({ children, }: { children: React.ReactNode }) {
