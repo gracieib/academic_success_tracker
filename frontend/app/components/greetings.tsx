@@ -36,7 +36,7 @@ const GreetingComponent = () => {
   }, []);
 
   return (
-    <div className="text-lg font-medium text-gray-800 dark:text-gray-200">
+    <div className="text-lg font-medium text-gray-800 dark:text-gray-800">
       {`${greeting}, ${username.charAt(0).toUpperCase() + username.slice(1)}`}
     </div>
   );

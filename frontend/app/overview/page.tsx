@@ -18,7 +18,7 @@ export default function OverviewPage() {
     const storedData = localStorage.getItem('timetableData')
     if (storedData) {
       const courses: Course[] = JSON.parse(storedData)
-      
+
       // Organize by day
       const organized: Record<string, Course[]> = {}
       days.forEach(day => {
@@ -26,7 +26,7 @@ export default function OverviewPage() {
           .filter(c => c.day.toLowerCase() === day.toLowerCase())
           .sort((a, b) => a.time.localeCompare(b.time))
       })
-      
+
       setTimetable(organized)
     }
   }, [])
@@ -35,12 +35,12 @@ export default function OverviewPage() {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold mb-6 text-center">📅 Your Weekly Timetable</h1>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {days.map(day => (
             <div key={day} className="border rounded-lg p-3">
               <h2 className="font-semibold text-lg mb-3 text-center">{day}</h2>
-              
+
               {timetable[day]?.length ? (
                 <ul className="space-y-2">
                   {timetable[day].map((course, i) => (

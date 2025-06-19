@@ -93,9 +93,9 @@ export default function ProfilePage() {
           <table className="min-w-full table-auto border border-gray-300 rounded-md">
             <thead>
               <tr className="bg-gray-200 text-left">
-                <th className="px-4 py-2">Course</th>
-                <th className="px-4 py-2">Day</th>
-                <th className="px-4 py-2">Time</th>
+                <th className="px-4 py-2"> Course </th>
+                <th className="px-4 py-2"> Day </th>
+                <th className="px-4 py-2"> Time</th>
               </tr>
             </thead>
             <tbody>
