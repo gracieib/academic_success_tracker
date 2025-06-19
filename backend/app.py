@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
+import requests
 import os
 from dotenv import load_dotenv
 
@@ -16,6 +17,7 @@ mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
 db = client["academicsuccessdb"]
 students_collection = db["students"]
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 # Register endpoint
 @app.route('/register', methods=['POST'])
@@ -127,6 +129,23 @@ def submit_feedback():
         return jsonify({"error": "Student not found"}), 404
 
     return jsonify({"message": "Feedback submitted successfully"}), 200
+
+
+@app.route('/chatbot', methods=['POST'])
+def chatbot():
+    user_input = request.json.get('message')
+
+    # Use Tavily for search
+    response = requests.post(
+        'https://api.tavily.com/search',
+        headers={"Authorization": f"Bearer {TAVILY_API_KEY}"},
+        json={"query": user_input, "include_answer": True}
+    )
+
+    data = response.json()
+    answer = data.get("answer", "Sorry, I couldn't find anything useful.")
+
+    return jsonify({"response": answer})
 
 # Run app
 if __name__ == '__main__':
