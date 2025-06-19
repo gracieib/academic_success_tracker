@@ -59,14 +59,14 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-white p-6 pt-24">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
         {/* Header */}
         <h1 className="text-2xl font-bold mb-4 text-center">🎓 Your Profile</h1>
 
         {/* User Info */}
         {user && (
-          <div className="mb-6 text-sm text-gray-700 space-y-1">
+          <div className="mb-6 text-lg text-gray-700 space-y-1">
             <p><strong>Name:</strong> {user.name}</p>
             <p><strong>Email:</strong> {user.email}</p>
             <p><strong>Level:</strong> {user.level}</p>
