@@ -1,0 +1,76 @@
+.contact {
+    width: 90%;
+    max-width: 50rem;
+    border-radius: 8px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+.heading {
+    background: #252639;
+    width: 100%;
+    text-align: center;
+    color: #ffffff;
+    border-radius: 8px 8px 0 0;
+}
+
+.heading h1 {
+    font-size: 2.5rem;
+}
+
+.getInTouch {
+    justify-content: left;
+}
+
+.info,
+.contactInfo,
+.getInTouch {
+    align-items: flex-start;
+}
+
+.contactInfo {
+    color: #475569;
+    font-weight: 600;
+    text-wrap: nowrap;
+}
+
+.data p,
+.data span {
+    font-weight: 400;
+    font-size: 0.7rem;
+}
+
+.feedback {
+    justify-content: flex-start;
+    align-items: left;
+}
+
+.feedback label {
+    color: #475569;
+}
+
+.feedback input,
+.feedback textarea {
+    border: none;
+    border-radius: 8px;
+    background-color: #F1F5F9;
+    color: #252639;
+}
+
+.submit {
+    background-color: #F97316;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 700;
+    outline: none;
+    border: none;
+}
+
+@media screen and (max-width: 800px) {
+    .heading h1 {
+        font-size: 1.5rem;
+    }
+
+    .info {
+        flex-direction: column;
+    }
+}

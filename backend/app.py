@@ -20,15 +20,42 @@ students_collection = db["students"]
 # Register endpoint
 @app.route('/register', methods=['POST'])
 def register_student():
-    data = request.get_json()
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No JSON data received"}), 400
+        # Validate required fields
+        required_fields = ["name", "email", "level", "target_cgpa"]
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": f"Missing fields. Required: {required_fields}"}), 400
+        # Check if student already exists
+        if students_collection.find_one({"email": data["email"]}):
+            return jsonify({"error": "Student already exists"}), 409
+        # Insert new student
+        result = students_collection.insert_one(data)
+        return jsonify({
+            "message": "Student registered successfully",
+            "id": str(result.inserted_id)
+        }), 201
+    except Exception as e:
+        print(f"Registration error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+    
 
-    # Basic validation
-    if not all(k in data for k in ("name", "email", "level", "target_cgpa")):
-        return jsonify({"error": "Missing fields"}), 400
 
-    # Save to MongoDB
-    students_collection.insert_one(data)
-    return jsonify({"message": "Student registered successfully"}), 201
+# Fetch all students
+@app.route('/events', methods=['GET'])
+def get_events():
+    email = request.args.get('email')
+    if not email:
+        return jsonify({"error": "Missing email parameter"}), 400
+
+    student = students_collection.find_one({"email": email}, {"_id": 0, "events": 1})
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+
+    return jsonify({"events": student.get("events", [])}), 200
+
 
 # Add academic schedule/events
 @app.route('/events', methods=['POST'])
@@ -49,6 +76,7 @@ def add_events():
         return jsonify({"error": "Student not found"}), 404
 
     return jsonify({"message": "Events added successfully"}), 200
+
 
 # Fetch student by email
 @app.route('/student', methods=['GET'])
@@ -102,5 +130,5 @@ def submit_feedback():
 
 # Run app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5001, debug=True)
 

@@ -1,0 +1,36 @@
+.recommended h1 {
+    font-size: 25px;
+    font-weight: 600;
+}
+.recommended p {
+    margin: 0.5rem 0;
+}
+.recipe {
+    border-radius: 8px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    padding: 0.5rem 0.5rem 0.7rem;
+}
+.recipe img {
+    width: 270px;
+    height: 139px;
+    border-radius: 8px;
+}
+.recipe h5 {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 0.4rem 0;
+}
+.nutrient {
+    background-color: rgba(255, 166, 0, 0.15);
+    color: #F97316;
+    padding: 0.3rem;
+    border-radius: 4px;
+    font-size: 14px;
+    
+}
+
+@media screen and (max-width: 1200px) {
+    .recipes{
+        flex-direction: column;
+    }
+}
