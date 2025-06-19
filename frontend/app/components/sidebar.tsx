@@ -10,8 +10,8 @@ export default function Sidebar() {
                     <li className='logoArea1' ><Logo /></li>
                     <li title='Overview'><Link href='/overview'><Image src='/images/icons/dashboard.svg' alt='' width={25} height={25} /> Overview</Link></li>
                     <li title='Progress'><Link href='/progress'><Image src='/images/icons/progress.svg' alt='' width={25} height={25} /> CGPA Tracker</Link></li>
-                    <li title='Workout'><Link href='/workout'><Image src='/images/icons/chatbot.svg' alt='' width={25} height={25} /> AI bot</Link></li>
-                    <li title='Recipes'><Link href='/recipes'><Image src='/images/icons/dietplan.svg' alt='' width={25} height={25} />To-Do</Link></li>
+                    <li title='Chatbot'><Link href='/chatbot'><Image src='/images/icons/chatbot.svg' alt='' width={25} height={25} /> AI bot</Link></li>
+                    <li title='TO-Do'><Link href='/Todo'><Image src='/images/icons/dietplan.svg' alt='' width={25} height={25} />To-Do</Link></li>
                     <hr />
                     <li title='Contact Us'><Link href='/contact'><Image src='/images/icons/contact.svg' alt='' width={25} height={25} /> Contact Us</Link></li>
                     <li title='Help'><Link href='/help'><Image src='/images/icons/help.svg' alt='' width={25} height={25} /> Help</Link></li>
