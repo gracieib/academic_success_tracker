@@ -1,76 +1,103 @@
 .contact {
-    width: 90%;
-    max-width: 50rem;
-    border-radius: 8px;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  min-height: 100vh;
+  padding: 2rem;
 }
 
 .heading {
-    background: #252639;
-    width: 100%;
-    text-align: center;
-    color: #ffffff;
-    border-radius: 8px 8px 0 0;
+  text-align: center;
+  font-bold: 600;
 }
 
 .heading h1 {
-    font-size: 2.5rem;
+  font-size: 2.5rem;
+  color: #333;
 }
 
-.getInTouch {
-    justify-content: left;
-}
-
-.info,
-.contactInfo,
-.getInTouch {
-    align-items: flex-start;
-}
-
-.contactInfo {
-    color: #475569;
-    font-weight: 600;
-    text-wrap: nowrap;
-}
-
-.data p,
-.data span {
-    font-weight: 400;
-    font-size: 0.7rem;
+.contactFormContainer {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .feedback {
-    justify-content: flex-start;
-    align-items: left;
+  width: 100%;
 }
 
-.feedback label {
-    color: #475569;
+.contactInfo {
+  align-items: center;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-.feedback input,
-.feedback textarea {
-    border: none;
-    border-radius: 8px;
-    background-color: #F1F5F9;
-    color: #252639;
+.contactInfo h2 {
+  font-size: 1rem;
+  margin-bottom: 0.1rem;
 }
 
-.submit {
-    background-color: #F97316;
-    border-radius: 8px;
-    color: #ffffff;
-    font-weight: 700;
-    outline: none;
-    border: none;
+.contactInfo p {
+  color: #666;
 }
 
-@media screen and (max-width: 800px) {
-    .heading h1 {
-        font-size: 1.5rem;
-    }
+.contactInfo span {
+  font-weight: bold;
+  color: #0066cc;
+}
 
-    .info {
-        flex-direction: column;
-    }
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.largeInput {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+}
+
+.largeTextarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 1rem;
+  font-size: 1.1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.submitButton {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.largeButton {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+}
+
+.submitButton:hover {
+  background-color: #0052a3;
+}
+
+/* Utility classes */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
 }
