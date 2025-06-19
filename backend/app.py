@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
@@ -6,7 +7,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_community.tools.tavily_search.tool import TavilySearchResults
 from langchain_core.prompts import ChatPromptTemplate
-import os
+from langchain.memory import ConversationBufferMemory
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -43,9 +44,13 @@ prompt = ChatPromptTemplate.from_messages([
     MessagesPlaceholder(variable_name="agent_scratchpad")
 ])
 
-
+memory = ConversationBufferMemory()
 agent = create_tool_calling_agent(llm, tools, prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    verbose=True,
+    memory=memory)
 
 
 # Register endpoint
@@ -71,8 +76,6 @@ def register_student():
     except Exception as e:
         print(f"Registration error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
-    
-
 
 # Fetch all students
 @app.route('/events', methods=['GET'])
@@ -108,7 +111,7 @@ def add_events():
 
     return jsonify({"message": "Events added successfully"}), 200
 
-# Cp
+# planner for CGPA
 @app.route('/plan-cgpa', methods=['POST'])
 def plan_cgpa():
     data = request.get_json()
