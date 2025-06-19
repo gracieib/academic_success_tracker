@@ -3,12 +3,19 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+type Course = {
+  course: string
+  day: string
+  time: string
+  unit: number | string  // Changed to handle both string input and number
+}
+
 export default function ProfilePage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [user, setUser] = useState<any>(null)
-  const [courses, setCourses] = useState([
-    { course: '', day: '', time: '' }
+  const [courses, setCourses] = useState<Course[]>([
+    { course: '', day: '', time: '', unit: '' }
   ])
 
   useEffect(() => {
@@ -20,7 +27,10 @@ export default function ProfilePage() {
         .then(data => {
           setUser(data)
           if (data.events) {
-            setCourses(data.events)
+            setCourses(data.events.map((event: any) => ({
+              ...event,
+              unit: event.unit || ''  // Handle missing unit field
+            })))
           }
         })
     }
@@ -34,10 +44,11 @@ export default function ProfilePage() {
       return
     }
 
-    // Format days to be consistent (capitalized)
+    // Format days and convert unit to number
     const formattedCourses = courses.map(course => ({
       ...course,
-      day: course.day.charAt(0).toUpperCase() + course.day.slice(1).toLowerCase()
+      day: course.day.charAt(0).toUpperCase() + course.day.slice(1).toLowerCase(),
+      unit: Number(course.unit) || 0  // Convert to number, default to 0 if empty
     }))
 
     const res = await fetch('http://localhost:5001/events', {
@@ -50,7 +61,6 @@ export default function ProfilePage() {
     })
 
     if (res.ok) {
-      // Store courses in localStorage for the overview page
       localStorage.setItem('timetableData', JSON.stringify(formattedCourses))
       router.push('/overview')
     } else {
@@ -80,7 +90,7 @@ export default function ProfilePage() {
           <span className="text-gray-600">Add courses to build your schedule 🚀</span>
           <button
             onClick={() =>
-              setCourses([...courses, { course: '', day: '', time: '' }])
+              setCourses([...courses, { course: '', day: '', time: '', unit: '' }])
             }
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           >
@@ -93,9 +103,10 @@ export default function ProfilePage() {
           <table className="min-w-full table-auto border border-gray-300 rounded-md">
             <thead>
               <tr className="bg-gray-200 text-left">
-                <th className="px-4 py-2"> Course </th>
-                <th className="px-4 py-2"> Day </th>
-                <th className="px-4 py-2"> Time</th>
+                <th className="px-4 py-2">Course</th>
+                <th className="px-4 py-2">Day</th>
+                <th className="px-4 py-2">Time</th>
+                <th className="px-4 py-2">Units</th>
               </tr>
             </thead>
             <tbody>
@@ -138,6 +149,20 @@ export default function ProfilePage() {
                       }}
                       className="w-full border px-2 py-1 rounded"
                       placeholder="e.g. 9:00 AM"
+                    />
+                  </td>
+                  <td className="px-4 py-2">
+                    <input
+                      type="number"
+                      value={c.unit}
+                      onChange={(e) => {
+                        const updated = [...courses]
+                        updated[index].unit = e.target.value
+                        setCourses(updated)
+                      }}
+                      className="w-full border px-2 py-1 rounded"
+                      placeholder="e.g. 3"
+                      min="0"
                     />
                   </td>
                 </tr>
