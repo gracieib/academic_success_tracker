@@ -11,7 +11,7 @@ from langchain.memory import ConversationBufferMemory
 import bcrypt
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables innit 
 load_dotenv()
 
 # Flask app setup
@@ -104,10 +104,18 @@ def login_student():
         if not student:
             return jsonify({"error": "Invalid credentials"}), 401
 
-        if not bcrypt.checkpw(data["password"].encode('utf-8'), student["password"]):
+        # Convert stored password to bytes if needed - just incase innit
+        stored_pw = student["password"]
+        if isinstance(stored_pw, str):
+            stored_pw = stored_pw.encode('utf-8')
+
+        if not bcrypt.checkpw(data["password"].encode('utf-8'), stored_pw):
             return jsonify({"error": "Invalid credentials"}), 401
 
+        # Convert ObjectId to string and remove password since mongo can't convert it to JSON
+        student['_id'] = str(student['_id'])
         student.pop("password", None)
+
         return jsonify({
             "message": "Login successful",
             "student": student
