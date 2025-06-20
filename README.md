@@ -26,7 +26,7 @@ An intelligent academic assistant that helps students manage their schedules, tr
 
 ## 🖼️ Screenshots
 
-### 🛂 Register Page
+### 👨🏻‍💻 Login Page
 ![Login Page](./screenshots/login.png)
 
 ---
@@ -66,7 +66,7 @@ Get answers to academic questions in markdown format.
 
 ---
 
-### 🛂 Help
+### 🛠️ Help
 ![Help Page](./screenshots/help.png)
 
 ---
