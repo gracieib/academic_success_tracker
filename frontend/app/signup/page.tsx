@@ -11,6 +11,8 @@ export default function RegisterPage() {
     email: '',
     level: '',
     target_cgpa: '',
+    password: '',
+    confirmPassword: '',
   })
 
   const [error, setError] = useState<string | null>(null)
@@ -23,13 +25,20 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.")
+      return
+    }
+
     setIsLoading(true)
 
     try {
+      const { confirmPassword, ...dataToSend } = formData // exclude confirmPassword
       const res = await fetch('http://localhost:5001/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       })
 
       const data = await res.json()
@@ -93,6 +102,26 @@ export default function RegisterPage() {
             value={formData.target_cgpa}
             onChange={handleChange}
             placeholder="Target CGPA (e.g. 4.5)"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded"
+          />
+
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Password"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded"
+          />
+
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirm Password"
             required
             className="w-full px-4 py-2 border border-gray-300 rounded"
           />
