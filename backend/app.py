@@ -9,9 +9,11 @@ from langchain_community.tools.tavily_search.tool import TavilySearchResults
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.memory import ConversationBufferMemory
 import bcrypt
+from werkzeug.security import check_password_hash
+from utils.auth import create_token
 from dotenv import load_dotenv
 
-# Load environment variables innit 
+# Load environment variables innit
 load_dotenv()
 
 # Flask app setup
@@ -217,7 +219,16 @@ def get_student():
     if not student:
         return jsonify({"error": "Student not found"}), 404
 
+    # Convert all byte fields to string or remove them
+    for key in list(student.keys()):
+        if isinstance(student[key], bytes):
+            try:
+                student[key] = student[key].decode('utf-8')  # or use base64 if binary
+            except Exception:
+                student.pop(key)  # remove if not decodable
+
     return jsonify(student), 200
+
 
 # Update CGPA
 @app.route('/update-cgpa', methods=['POST'])
