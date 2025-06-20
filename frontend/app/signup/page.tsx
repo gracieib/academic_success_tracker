@@ -34,7 +34,7 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      const { confirmPassword, ...dataToSend } = formData // exclude confirmPassword
+      const { confirmPassword, ...dataToSend } = formData
       const res = await fetch('http://localhost:5001/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,7 +49,7 @@ export default function RegisterPage() {
       }
 
       localStorage.setItem('studentEmail', formData.email)
-      router.push('/profile')
+      router.push('/my-profile')
     } catch (err) {
       setError('Failed to connect to server.')
     } finally {
