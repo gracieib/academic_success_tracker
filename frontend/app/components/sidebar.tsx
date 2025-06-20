@@ -3,15 +3,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Logo from '@/app/components/logo';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react'; // If using NextAuth.js
-// or your custom auth logic (e.g., Firebase, Supabase, etc.)
 
 export default function Sidebar() {
   const router = useRouter();
 
-  const handleLogout = () => {
-    localStorage.removeItem('studentEmail'); // Clear student session
-    router.push('/login'); // Redirect to login page
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('studentEmail');
+    window.location.href = '/';
   };
 
   return (
@@ -28,7 +27,7 @@ export default function Sidebar() {
         <li title='My Profile'><Link href='/my-profile'><Image src='/images/icons/user.svg' alt='' width={25} height={25} /> My Account</Link></li>
         <hr />
         <li title='Logout'>
-          <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+          <button onClick={logout} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
             <Image src='/images/icons/logout.svg' alt='' width={25} height={25} />
             Logout
           </button>

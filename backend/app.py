@@ -2,7 +2,6 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
-import requests
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_community.tools.tavily_search.tool import TavilySearchResults
@@ -106,7 +105,7 @@ def login_student():
         if not student:
             return jsonify({"error": "Invalid credentials"}), 401
 
-        # Convert stored password to bytes if needed - just incase innit
+        # Convert stored password to bytes
         stored_pw = student["password"]
         if isinstance(stored_pw, str):
             stored_pw = stored_pw.encode('utf-8')
@@ -114,18 +113,23 @@ def login_student():
         if not bcrypt.checkpw(data["password"].encode('utf-8'), stored_pw):
             return jsonify({"error": "Invalid credentials"}), 401
 
-        # Convert ObjectId to string and remove password since mongo can't convert it to JSON
+        # Clean up student data
         student['_id'] = str(student['_id'])
         student.pop("password", None)
 
+        #JWT token creation from utils/auth.py
+        token = create_token(student)
+
         return jsonify({
             "message": "Login successful",
+            "token": token,
             "student": student
         }), 200
 
     except Exception as e:
         print(f"Login error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+
 
 
 # Fetch all students
