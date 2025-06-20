@@ -26,7 +26,12 @@ An intelligent academic assistant that helps students manage their schedules, tr
 
 ## 🖼️ Screenshots
 
-### 🛂 Register Page  
+### 🛂 Register Page
+![Login Page](./screenshots/login.png)
+
+---
+
+### 🛂 Register Page
 ![Register Page](./screenshots/register.png)
 
 ---
@@ -58,6 +63,11 @@ Organize and visualize tasks day-by-day in a monthly view.
 ### 🤖 AI Study Bot  
 Get answers to academic questions in markdown format.  
 ![AI Bot](./screenshots/Ai_bot.png)
+
+---
+
+### 🛂 Help
+![Help Page](./screenshots/help.png)
 
 ---
 
