@@ -8,6 +8,7 @@ from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_community.tools.tavily_search.tool import TavilySearchResults
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.memory import ConversationBufferMemory
+import bcrypt
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -62,13 +63,25 @@ def register_student():
         if not data:
             return jsonify({"error": "No JSON data received"}), 400
 
-        required_fields = ["name", "email", "level", "target_cgpa"]
+        required_fields = ["name", "email", "level", "target_cgpa", "password"]
         if not all(field in data for field in required_fields):
             return jsonify({"error": f"Missing fields. Required: {required_fields}"}), 400
 
         if students_collection.find_one({"email": data["email"]}):
             return jsonify({"error": "Student already exists"}), 409
-        result = students_collection.insert_one(data)
+
+        # Hash password
+        hashed_pw = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt())
+
+        student_data = {
+            "name": data["name"],
+            "email": data["email"],
+            "level": data["level"],
+            "target_cgpa": data["target_cgpa"],
+            "password": hashed_pw  # store hashed password
+        }
+
+        result = students_collection.insert_one(student_data)
 
         return jsonify({
             "message": "Student registered successfully",
@@ -78,6 +91,32 @@ def register_student():
     except Exception as e:
         print(f"Registration error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+
+# Login endpoint
+@app.route('/login', methods=['POST'])
+def login_student():
+    try:
+        data = request.get_json()
+        if not data or "email" not in data or "password" not in data:
+            return jsonify({"error": "Email and password are required"}), 400
+
+        student = students_collection.find_one({"email": data["email"]})
+        if not student:
+            return jsonify({"error": "Invalid credentials"}), 401
+
+        if not bcrypt.checkpw(data["password"].encode('utf-8'), student["password"]):
+            return jsonify({"error": "Invalid credentials"}), 401
+
+        student.pop("password", None)
+        return jsonify({
+            "message": "Login successful",
+            "student": student
+        }), 200
+
+    except Exception as e:
+        print(f"Login error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
 
 # Fetch all students
 @app.route('/events', methods=['GET'])

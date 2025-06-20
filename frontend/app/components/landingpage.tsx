@@ -10,6 +10,7 @@ export default function LandingPage() {
   const resetSuccess = searchParams.get('resetSuccess')
 
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -19,15 +20,22 @@ export default function LandingPage() {
     setIsLoading(true)
 
     try {
-      const res = await fetch(`http://localhost:5001/student?email=${email}`)
+      const res = await fetch('http://localhost:5001/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error || 'Student not found.')
+        setError(data.error || 'Login failed.')
         return
       }
 
+      // Save user email or token if using JWT later
       localStorage.setItem('studentEmail', email)
+
       router.push('/my-profile')
     } catch (err) {
       setError('Connection error. Please try again.')
@@ -61,6 +69,15 @@ export default function LandingPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500"
           />
 
