@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session, redirect
 from flask_cors import CORS
 from pymongo import MongoClient
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -8,6 +8,13 @@ from langchain_community.tools.tavily_search.tool import TavilySearchResults
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.memory import ConversationBufferMemory
 import bcrypt
+from google_auth_oauthlib.flow import Flow
+import pathlib
+from googleapiclient.discovery import build
+from langchain.tools import tool
+from tools.calender import add_google_event
+from langchain_core.prompts import MessagesPlaceholder
+from google.oauth2.credentials import Credentials
 from werkzeug.security import check_password_hash
 from utils.auth import create_token
 from dotenv import load_dotenv
@@ -24,6 +31,7 @@ mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri)
 db = client["academicsuccessdb"]
 students_collection = db["students"]
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecret")
 
 api_key = os.getenv("GOOGLE_API_KEY")
 tavily_api_key = os.getenv("TAVILY_API_KEY")
@@ -37,15 +45,42 @@ llm = ChatGoogleGenerativeAI(
 # Creating Tavily search tool
 tavily_tool = TavilySearchResults(api_key=os.getenv("TAVILY_API_KEY"))
 
+# Calender events tool
+@tool
+def create_calendar_event(email: str, summary: str, start: str, end: str) -> str:
+    """Add an event to the student's Google Calendar."""
+    return add_google_event(email, summary, start, end)
+
 # Defining the agent's tools and prompt
-tools = [tavily_tool]
-from langchain_core.prompts import MessagesPlaceholder
+tools = [tavily_tool, create_calendar_event]
+
 
 prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful academic assistant for university students. Provide concise, accurate answers."),
+    ("system", """
+You are a helpful academic assistant.
+
+You can help students schedule events by understanding natural language inputs like:
+- "Schedule an AI class for 6am today"
+- "Add biology exam to my calendar for Friday at 2pm"
+- "Remind me about my meeting at 10am tomorrow"
+
+Extract:
+- summary: the title of the event
+- start: the starting time (parse "today", "tomorrow", "Friday at 2pm", etc.)
+- end: optional; if not given, assume 1 hour after start
+- email: either given or prompt user once
+
+Once you have these, call the tool:
+`create_calendar_event(email, summary, start, end)`.
+
+Use today's date if "today" is mentioned. Time should be in this format: `YYYY-MM-DDTHH:MM:SS`.
+
+If the date or email is missing, politely ask for it.
+    """),
     ("user", "{input}"),
     MessagesPlaceholder(variable_name="agent_scratchpad")
 ])
+
 
 memory = ConversationBufferMemory()
 agent = create_tool_calling_agent(llm, tools, prompt)
@@ -55,6 +90,15 @@ agent_executor = AgentExecutor(
     verbose=True,
     memory=memory)
 
+def credentials_to_dict(credentials):
+    return {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
 
 # Register endpoint
 @app.route('/register', methods=['POST'])
@@ -270,7 +314,6 @@ def submit_feedback():
 
     return jsonify({"message": "Feedback submitted successfully"}), 200
 
-
 #chatbot
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
@@ -290,6 +333,70 @@ def chatbot():
     except Exception as e:
         print(f"Chatbot error: {str(e)}")
         return jsonify({"error": "Failed to process request"}), 500
+
+# Start OAuth and store email in session
+@app.route('/authorize')
+def authorize():
+    email = request.args.get('email')
+    if not email:
+        return jsonify({"error": "Missing email"}), 400
+
+    session['user_email'] = email
+
+    flow = Flow.from_client_secrets_file(
+        'credentials.json',
+        scopes=['https://www.googleapis.com/auth/calendar'],
+        redirect_uri=os.getenv('GOOGLE_REDIRECT_URI')
+    )
+    auth_url, _ = flow.authorization_url(prompt='consent')
+    return redirect(auth_url)
+
+# OAuth callback and save credentials to MongoDB
+@app.route('/oauth2callback')
+def oauth2callback():
+    flow = Flow.from_client_secrets_file(
+        'credentials.json',
+        scopes=['https://www.googleapis.com/auth/calendar'],
+        redirect_uri=os.getenv('GOOGLE_REDIRECT_URI')
+    )
+    flow.fetch_token(authorization_response=request.url)
+    credentials = flow.credentials
+
+    user_email = session.get('user_email')
+    if not user_email:
+        return jsonify({"error": "Missing session user email"}), 400
+
+    students_collection.update_one(
+        {"email": user_email},
+        {"$set": {"google_credentials": credentials_to_dict(credentials)}}
+    )
+
+    return jsonify({"message": "Authorization successful"})
+
+# Add event to Google Calendar (using stored credentials from DB)
+@app.route('/add-google-event', methods=['POST'])
+def add_event():
+    data = request.get_json()
+    email = data.get("email")
+    if not email:
+        return jsonify({"error": "Missing email"}), 400
+
+    student = students_collection.find_one({"email": email})
+    if not student or "google_credentials" not in student:
+        return jsonify({"error": "Google credentials not found for this user"}), 404
+
+    creds = Credentials.from_authorized_user_info(student["google_credentials"])
+    service = build('calendar', 'v3', credentials=creds)
+
+    event = {
+        'summary': data['summary'],
+        'start': {'dateTime': data['start'], 'timeZone': 'Africa/Lagos'},
+        'end': {'dateTime': data['end'], 'timeZone': 'Africa/Lagos'}
+    }
+
+    created = service.events().insert(calendarId='primary', body=event).execute()
+    return jsonify({'eventId': created['id'], 'link': created.get('htmlLink')})
+
 
 # Run app
 if __name__ == '__main__':
